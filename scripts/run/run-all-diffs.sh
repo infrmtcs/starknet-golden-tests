@@ -34,9 +34,9 @@ NC='\033[0m' # No Color
 while IFS= read -r -d '' input_file; do
     # input_file is relative to current directory (repo root)
     rel_input_file="$input_file"
-    
+
     ((total++))
-    
+
     # Run diff (use absolute path to be safe)
     abs_input_file="$repo_root/$input_file"
     printf "Running diff for: %-100s" "$rel_input_file"
@@ -49,7 +49,7 @@ while IFS= read -r -d '' input_file; do
         # Show the actual diff
         "${script_dir}/diff.sh" "$rpc_url" "$abs_input_file"
     fi
-    
+
 done < <(find "$tests_folder" -type f -name "*.input.json" -print0 2>/dev/null)
 
 # Summary
@@ -66,4 +66,3 @@ if [ $failed -gt 0 ]; then
 fi
 
 exit 0
-
