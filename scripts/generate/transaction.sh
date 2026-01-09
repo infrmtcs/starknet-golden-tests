@@ -5,21 +5,29 @@ if [[ "$1" == "--rpc-url" ]]; then
     rpc_url="$2"
     shift 2
 fi
-network="$1"
-transaction_hash="$2"
+transaction_hash="$1"
 
-if [ -z "$network" ] || [ -z "$transaction_hash" ] || [ -z "$rpc_url" ]; then
-    echo "Usage: $0 [--rpc-url <url>] <network> <transaction_hash>" >&2
+if [ -z "$transaction_hash" ] || [ -z "$rpc_url" ]; then
+    echo "Usage: $0 [--rpc-url <url>] <transaction_hash>" >&2
     echo "" >&2
     echo "RPC URL can be provided via --rpc-url flag or STARKNET_RPC env var." >&2
     echo "" >&2
     echo "Examples:" >&2
-    echo "  $0 --rpc-url http://localhost:6060 mainnet 0x1b4d9f09276629d496af1af8ff00173c11ff146affacb1b5c858d7aa89001ae" >&2
-    echo "  STARKNET_RPC=http://localhost:6060 $0 mainnet 0x1b4d9f09276629d496af1af8ff00173c11ff146affacb1b5c858d7aa89001ae" >&2
+    echo "  $0 --rpc-url http://localhost:6060 0x1b4d9f09276629d496af1af8ff00173c11ff146affacb1b5c858d7aa89001ae" >&2
+    echo "  STARKNET_RPC=http://localhost:6060 $0 0x1b4d9f09276629d496af1af8ff00173c11ff146affacb1b5c858d7aa89001ae" >&2
     exit 1
 fi
 
 script_dir="$(dirname "$0")"
+
+# Auto-detect network
+echo "🔍 Auto-detecting network by querying starknet_chainId..."
+if ! tests_folder=$(STARKNET_RPC="$rpc_url" "${script_dir}/../run/detect-network.sh") || [ -z "$tests_folder" ]; then
+    exit 1
+fi
+network=$(basename "$tests_folder")
+echo "✅ Using network: $network"
+
 methods=(
     "starknet_getTransactionByHash"
     "starknet_getTransactionReceipt"

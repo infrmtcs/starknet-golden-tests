@@ -5,21 +5,29 @@ if [[ "$1" == "--rpc-url" ]]; then
     rpc_url="$2"
     shift 2
 fi
-network="$1"
-block_number="$2"
+block_number="$1"
 
-if [ -z "$network" ] || [ -z "$block_number" ] || [ -z "$rpc_url" ]; then
-    echo "Usage: $0 [--rpc-url <url>] <network> <block_number>" >&2
+if [ -z "$block_number" ] || [ -z "$rpc_url" ]; then
+    echo "Usage: $0 [--rpc-url <url>] <block_number>" >&2
     echo "" >&2
     echo "RPC URL can be provided via --rpc-url flag or STARKNET_RPC env var." >&2
     echo "" >&2
     echo "Examples:" >&2
-    echo "  $0 --rpc-url http://localhost:6060 mainnet 100" >&2
-    echo "  STARKNET_RPC=http://localhost:6060 $0 mainnet 100" >&2
+    echo "  $0 --rpc-url http://localhost:6060 100" >&2
+    echo "  STARKNET_RPC=http://localhost:6060 $0 100" >&2
     exit 1
 fi
 
 script_dir="$(dirname "$0")"
+
+# Auto-detect network
+echo "🔍 Auto-detecting network by querying starknet_chainId..."
+if ! tests_folder=$(STARKNET_RPC="$rpc_url" "${script_dir}/../run/detect-network.sh") || [ -z "$tests_folder" ]; then
+    exit 1
+fi
+network=$(basename "$tests_folder")
+echo "✅ Using network: $network"
+
 methods=(
     "starknet_getBlockTransactionCount"
     "starknet_getBlockWithReceipts"

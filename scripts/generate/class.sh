@@ -5,25 +5,32 @@ if [[ "$1" == "--rpc-url" ]]; then
     rpc_url="$2"
     shift 2
 fi
-network="$1"
-class_hash="$2"
-block_id_arg="$3"
+class_hash="$1"
+block_id_arg="$2"
 
-if [ -z "$network" ] || [ -z "$class_hash" ] || [ -z "$rpc_url" ]; then
-    echo "Usage: $0 [--rpc-url <url>] <network> <class_hash> [block_id]" >&2
+if [ -z "$class_hash" ] || [ -z "$rpc_url" ]; then
+    echo "Usage: $0 [--rpc-url <url>] <class_hash> [block_id]" >&2
     echo "" >&2
     echo "RPC URL can be provided via --rpc-url flag or STARKNET_RPC env var." >&2
     echo "block_id is optional: if starts with 0x, uses block_hash; if numeric, uses block_number; defaults to 'latest'." >&2
     echo "" >&2
     echo "Examples:" >&2
-    echo "  $0 --rpc-url http://localhost:6060 mainnet 0x1234..." >&2
-    echo "  $0 --rpc-url http://localhost:6060 mainnet 0x1234... 100" >&2
-    echo "  $0 --rpc-url http://localhost:6060 mainnet 0x1234... 0xabc..." >&2
-    echo "  STARKNET_RPC=http://localhost:6060 $0 mainnet 0x1234..." >&2
+    echo "  $0 --rpc-url http://localhost:6060 0x1234..." >&2
+    echo "  $0 --rpc-url http://localhost:6060 0x1234... 100" >&2
+    echo "  $0 --rpc-url http://localhost:6060 0x1234... 0xabc..." >&2
+    echo "  STARKNET_RPC=http://localhost:6060 $0 0x1234..." >&2
     exit 1
 fi
 
 script_dir="$(dirname "$0")"
+
+# Auto-detect network
+echo "🔍 Auto-detecting network by querying starknet_chainId..."
+if ! tests_folder=$(STARKNET_RPC="$rpc_url" "${script_dir}/../run/detect-network.sh") || [ -z "$tests_folder" ]; then
+    exit 1
+fi
+network=$(basename "$tests_folder")
+echo "✅ Using network: $network"
 
 # Determine block_id format
 if [ -z "$block_id_arg" ]; then
