@@ -33,7 +33,7 @@ network=$(basename "$tests_folder")
 echo "✅ Using network: $network"
 
 # Determine block_id format
-if [ -z "$block_id_arg" ]; then
+if [ -z "$block_id_arg" ] || [ "$block_id_arg" = "latest" ]; then
     block_id_json='"latest"'
     test_suffix=""
 elif [[ "$block_id_arg" == 0x* ]]; then

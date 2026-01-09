@@ -19,6 +19,7 @@ generate_usage() {
     echo "Commands:"
     echo "  block        Generate tests for a block"
     echo "  class        Generate tests for a class"
+    echo "  contract     Generate tests for a contract"
     echo "  transaction  Generate tests for a transaction"
     echo "  version      Generate tests for version methods (specVersion, chainId)"
 }
@@ -46,6 +47,10 @@ case "${1:-}" in
             class)
                 shift
                 "$script_dir/scripts/generate/class.sh" "$@"
+                ;;
+            contract)
+                shift
+                "$script_dir/scripts/generate/contract.sh" "$@"
                 ;;
             transaction)
                 shift
