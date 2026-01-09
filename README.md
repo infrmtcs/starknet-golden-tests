@@ -45,16 +45,19 @@ Generate golden test cases from a trusted RPC endpoint:
 
 ```bash
 # Generate tests for a block (by block number)
-./golden.sh generate block [--rpc-url <url>] <network> <block_number>
+./golden.sh generate block [--rpc-url <url>] <block_number>
 
 # Generate tests for a class (by class hash)
-./golden.sh generate class [--rpc-url <url>] <network> <class_hash> [block_id]
+./golden.sh generate class [--rpc-url <url>] <class_hash> [block_id]
+
+# Generate tests for a contract (by address)
+./golden.sh generate contract [--rpc-url <url>] <contract_address> [block_id]
 
 # Generate tests for a transaction (by hash)
-./golden.sh generate transaction [--rpc-url <url>] <network> <transaction_hash>
+./golden.sh generate transaction [--rpc-url <url>] <transaction_hash>
 
 # Generate version/chainId tests
-./golden.sh generate version [--rpc-url <url>] <network>
+./golden.sh generate version [--rpc-url <url>]
 ```
 
 **Examples:**
@@ -62,14 +65,16 @@ Generate golden test cases from a trusted RPC endpoint:
 ```bash
 # Using STARKNET_RPC env var
 export STARKNET_RPC=http://localhost:6060
-./golden.sh generate block mainnet 100
-./golden.sh generate class mainnet 0x1234... # uses "latest" block
-./golden.sh generate class mainnet 0x1234... 100 # uses block_number
-./golden.sh generate class mainnet 0x1234... 0xabc... # uses block_hash
-./golden.sh generate transaction mainnet 0x1b4d9f09276629d496af1af8ff00173c11ff146affacb1b5c858d7aa89001ae
+./golden.sh generate block 100
+./golden.sh generate class 0x1234... # uses "latest" block
+./golden.sh generate class 0x1234... 100 # uses block_number
+./golden.sh generate class 0x1234... 0xabc... # uses block_hash
+./golden.sh generate contract 0x5678... # uses "latest" block
+./golden.sh generate contract 0x5678... 100 # uses block_number (also generates getNonce)
+./golden.sh generate transaction 0x1b4d9f09276629d496af1af8ff00173c11ff146affacb1b5c858d7aa89001ae
 
 # Or using --rpc-url flag
-./golden.sh generate block --rpc-url http://localhost:6060 mainnet 100
+./golden.sh generate block --rpc-url http://localhost:6060 100
 ```
 
 The generators automatically:
