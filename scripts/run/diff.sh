@@ -37,18 +37,18 @@ temp_expected=$(mktemp)
 trap 'rm -f "$temp_actual" "$temp_expected"' EXIT
 
 # Run query and capture exit code - if this fails, the test should fail
-if ! STARKNET_RPC="$rpc_url" "${script_dir}/query-rpc.sh" <"$input_file" > "$temp_actual"; then
+if ! STARKNET_RPC="$rpc_url" "${script_dir}/query-rpc.sh" <"$input_file" >"$temp_actual"; then
     exit 1
 fi
 
-# Pretty-print actual response
-if ! jq '.' "$temp_actual" > "${temp_actual}.pretty"; then
+# Normalize and pretty-print actual response
+if ! jq -S -f "${script_dir}/normalize-json.jq" "$temp_actual" >"${temp_actual}.pretty"; then
     echo "Error: Failed to parse RPC response as JSON" >&2
     exit 1
 fi
 
-# Pretty-print expected output
-if ! jq '.' "$output_file" > "$temp_expected"; then
+# Normalize and pretty-print expected output
+if ! jq -S -f "${script_dir}/normalize-json.jq" "$output_file" >"$temp_expected"; then
     echo "Error: Failed to parse expected output as JSON" >&2
     exit 1
 fi
